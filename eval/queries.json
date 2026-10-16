@@ -1,0 +1,42 @@
+{
+  "version": "draft-1",
+  "created": "2026-10-15",
+  "status": "DRAFT: relevance judgments written by Claude after reading the pages; must be reviewed by Kalpesh before results are reported",
+  "unit": "A result counts as relevant if its (source_key, page) is listed for the query.",
+  "documents": {
+    "M": "frontiers-2025-mailam-tank-cascade",
+    "V": "frontiers-2021-vandiyur-cascade-tanks",
+    "S": "frontiers-2021-suresh-intersectoral-water",
+    "D": "dhan-2004-customary-rights-tank-management"
+  },
+  "queries": [
+    {"id": "Q01", "type": "term", "query": "kudimaramath", "relevant": ["M2", "M18", "D14", "D17", "D18", "D20", "D91"], "note": "Spelled Kudimaramatu (M2), Kudimaramathu (M18, D91), Kudimaramath (D14-D20)."},
+    {"id": "Q02", "type": "paraphrase", "query": "How did farmers traditionally contribute voluntary labour to maintain tanks?", "relevant": ["M2", "M18", "D14", "D16", "D17", "D33", "D35", "D91", "D92"]},
+    {"id": "Q03", "type": "term", "query": "neerkatti", "relevant": ["D15", "D16"]},
+    {"id": "Q04", "type": "paraphrase", "query": "Who was responsible for opening sluices and distributing tank water to the fields?", "relevant": ["M13", "M19", "M20", "D15", "D28", "D35", "D60", "D62", "D94", "D95", "D117"], "note": "Same role, different local names: Kombukatty (M), Neerkatti (D15), Neerpaichi (D28+)."},
+    {"id": "Q05", "type": "paraphrase", "query": "How were the traditional village water managers paid?", "relevant": ["M13", "D15", "D28", "D35", "D95", "D117"]},
+    {"id": "Q06", "type": "term", "query": "Mamulnama", "relevant": ["D15", "D16", "M16"]},
+    {"id": "Q07", "type": "paraphrase", "query": "written records of customary irrigation rights for tanks in Vellore", "relevant": ["D15", "D16", "M16"]},
+    {"id": "Q08", "type": "term", "query": "tank cascade", "relevant": ["M1", "M2", "M4", "M16", "V1", "V3", "V4", "D5", "D35"]},
+    {"id": "Q09", "type": "paraphrase", "query": "How are tanks in a chain connected so that surplus water flows to the next tank downstream?", "relevant": ["M2", "M16", "V4", "D5", "D94"]},
+    {"id": "Q10", "type": "paraphrase", "query": "Why do farmers no longer depend on tank irrigation?", "relevant": ["M1", "M8", "M13", "M18", "M20", "D35"]},
+    {"id": "Q11", "type": "paraphrase", "query": "How much storage capacity have the tanks lost because of silt?", "relevant": ["M8", "M18", "V1", "V12"]},
+    {"id": "Q12", "type": "term", "query": "Prosopis juliflora in tanks", "relevant": ["M8", "M18", "M20", "D45", "D95"]},
+    {"id": "Q13", "type": "paraphrase", "query": "Which government departments manage tanks with ayacut above and below 40 hectares?", "relevant": ["M2", "M4", "M6", "M19", "D44"]},
+    {"id": "Q14", "type": "term", "query": "Water Users Association effectiveness", "relevant": ["M2", "M4", "M13", "M19"]},
+    {"id": "Q15", "type": "term", "query": "Land Encroachment Act 1905", "relevant": ["D18", "D19", "M19"]},
+    {"id": "Q16", "type": "paraphrase", "query": "How did British land tenure changes weaken community tank maintenance?", "relevant": ["D14", "D17", "D18", "M19"]},
+    {"id": "Q17", "type": "term", "query": "fishing rights in village tanks", "relevant": ["D20", "D33", "D44", "D45", "M13"]},
+    {"id": "Q18", "type": "paraphrase", "query": "Can farmers take silt from the tank bed to put on their fields?", "relevant": ["M18", "D35", "D45"]},
+    {"id": "Q19", "type": "term", "query": "groundwater level decline", "relevant": ["M15", "M16", "V10"]},
+    {"id": "Q20", "type": "term", "query": "unmet water demand Madurai", "relevant": ["V1", "V10"]},
+    {"id": "Q21", "type": "paraphrase", "query": "What would be gained by restoring the cascade tanks?", "relevant": ["V1", "V13", "V14"]},
+    {"id": "Q22", "type": "paraphrase", "query": "What local names are used for tanks in Tamil Nadu?", "relevant": ["M2", "D44"]},
+    {"id": "Q23", "type": "paraphrase", "query": "How many tanks are there in Tamil Nadu?", "relevant": ["M2", "D14", "D44"]},
+    {"id": "Q24", "type": "paraphrase", "query": "religious rituals and worship connected with tanks", "relevant": ["M13", "M20", "D35", "D91", "D117"]},
+    {"id": "Q25", "type": "paraphrase", "query": "share of tank water in Tamil Nadu irrigation compared with groundwater", "relevant": ["S5", "M2", "D14"]},
+    {"id": "Q26", "type": "term", "query": "encroachment of tank water spread area", "relevant": ["M8", "M19", "V8", "V15", "D35", "D95"]},
+    {"id": "Q27", "type": "paraphrase", "query": "drinking water ponds filled from the irrigation tank", "relevant": ["D48", "D52", "D53"], "note": "Source calls them ooranis."},
+    {"id": "Q28", "type": "paraphrase", "query": "How did Sathangudi village try to get water into its tank?", "relevant": ["D33", "D92", "D93", "D94"]}
+  ]
+}

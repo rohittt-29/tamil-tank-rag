@@ -1,0 +1,68 @@
+{
+  "documents": [
+    {
+      "source_key": "frontiers-2025-mailam-tank-cascade",
+      "file": "data/raw/frontiers_2025_mailam_tank_cascade.pdf",
+      "title": "Socio-hydrology and sustainable tank management: empirical case from a Mailam tank cascade, Tamil Nadu, India",
+      "authors": [
+        "Raj Rengalakshmi",
+        "Perumal Thamizoli",
+        "Rajendiren Nagarajan",
+        "Pasuvanna Nandeesa"
+      ],
+      "year": 2025,
+      "language": "en",
+      "source_org": "Frontiers in Water, vol. 7",
+      "source_url": "https://www.frontiersin.org/articles/10.3389/frwa.2025.1597293/full",
+      "doi": "10.3389/frwa.2025.1597293",
+      "license": "CC BY (Creative Commons Attribution License), stated on PDF page 1",
+      "sha256": "b50a9430261e98b12255d4a2c81929b8e4537fc1f429cc8460d469f024584566"
+    },
+    {
+      "source_key": "frontiers-2021-vandiyur-cascade-tanks",
+      "file": "data/raw/frontiers_2021_vandiyur_cascade_tanks.pdf",
+      "title": "Revival of Traditional Cascade Tanks for Achieving Climate Resilience in Drylands of South India",
+      "authors": [
+        "Pennan Chinnasamy",
+        "Aman Srivastava"
+      ],
+      "year": 2021,
+      "language": "en",
+      "source_org": "Frontiers in Water, vol. 3",
+      "source_url": "https://www.frontiersin.org/journals/water/articles/10.3389/frwa.2021.639637/full",
+      "doi": "10.3389/frwa.2021.639637",
+      "license": "CC BY (Creative Commons Attribution License), stated on PDF",
+      "sha256": "a1904c2ac27b07c82ac8c33df46870e3a676f603a97669cf53feae25638cb757"
+    },
+    {
+      "source_key": "frontiers-2021-suresh-intersectoral-water",
+      "file": "data/raw/frontiers_2021_suresh_intersectoral_water.pdf",
+      "title": "Intersectoral Competition for Water Between Users and Uses in Tamil Nadu-India",
+      "authors": [
+        "S. Suresh"
+      ],
+      "year": 2021,
+      "language": "en",
+      "source_org": "Frontiers in Earth Science, vol. 9",
+      "source_url": "https://www.frontiersin.org/journals/earth-science/articles/10.3389/feart.2021.663198/full",
+      "doi": "10.3389/feart.2021.663198",
+      "license": "CC BY (Creative Commons Attribution License), stated on PDF",
+      "sha256": "5e8e202393672455889b797d8bee44d8d6cd476a6845d90e888c3f6aa61437c3"
+    },
+    {
+      "source_key": "dhan-2004-customary-rights-tank-management",
+      "file": "data/raw/dhan_2004_customary_rights_tank_management.pdf",
+      "title": "Study on Customary Rights and their Relation to Modern Tank Management in Tamil Nadu, India",
+      "authors": [
+        "DHAN Foundation"
+      ],
+      "year": 2004,
+      "language": "en",
+      "source_org": "DHAN Foundation, Madurai (sponsored by DCAP, New Delhi)",
+      "source_url": "https://dlc.dlib.indiana.edu/dlc/items/b82f30be-8a98-4f7f-9e0b-17aff45b50ce/full",
+      "doi": null,
+      "license": "No licence stated in PDF; freely available from the Digital Library of the Commons. Used for non-commercial academic research only; do not redistribute.",
+      "sha256": "963f34540b5bcd7d6d53b396d2a073b2829b7a53b957f6a66951d5a9ec55b613"
+    }
+  ]
+}

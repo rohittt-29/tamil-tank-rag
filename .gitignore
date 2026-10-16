@@ -1,0 +1,10 @@
+node_modules/
+dist/
+__pycache__/
+.pytest_cache/
+.venv/
+.env
+# Original PDFs are kept locally, not in git. data/manifest.json records
+# where each one came from plus its sha256, so anyone can re-download it.
+data/raw/*
+!data/raw/.gitkeep

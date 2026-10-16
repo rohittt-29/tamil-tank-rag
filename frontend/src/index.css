@@ -1,0 +1,28 @@
+:root {
+  font-family: system-ui, 'Noto Sans Tamil', sans-serif;
+  line-height: 1.5;
+  color: #1f2328;
+  background: #fafaf7;
+}
+body { margin: 0; }
+main { max-width: 860px; margin: 0 auto; padding: 24px 16px 64px; }
+h1 { font-size: 1.6rem; margin-bottom: 4px; }
+h2 { font-size: 1.1rem; margin-top: 40px; }
+.muted { color: #656d76; }
+.error { color: #b42318; }
+.search { display: flex; gap: 8px; margin: 16px 0; }
+.search input { flex: 1; padding: 10px 12px; font-size: 1rem; border: 1px solid #c8ccd0; border-radius: 6px; }
+.search button { padding: 10px 18px; font-size: 1rem; border: 0; border-radius: 6px; background: #1a5e4a; color: white; cursor: pointer; }
+.search button:disabled { opacity: 0.6; }
+.hits { padding-left: 20px; }
+.hit { margin-bottom: 20px; }
+.snippet { margin: 0 0 6px; }
+mark { background: #fde68a; padding: 0 2px; }
+.source { display: flex; flex-direction: column; font-size: 0.875rem; color: #424a53; }
+.collection ul { padding-left: 20px; }
+@media (prefers-color-scheme: dark) {
+  :root { color: #e6edf3; background: #0d1117; }
+  .muted, .source { color: #9198a1; }
+  .search input { background: #161b22; color: inherit; border-color: #30363d; }
+  mark { background: #7c5e10; color: #fff; }
+}
