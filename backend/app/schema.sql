@@ -38,3 +38,10 @@ ALTER TABLE chunks ADD COLUMN IF NOT EXISTS section TEXT NOT NULL DEFAULT 'body'
 
 CREATE INDEX IF NOT EXISTS chunks_tsv_idx ON chunks USING GIN (tsv);
 CREATE INDEX IF NOT EXISTS chunks_document_idx ON chunks (document_id);
+
+-- Milestone 2: semantic search. pgvector stores one 384-number vector per chunk.
+-- embedding_model records which model made the vector, so a model change is detected.
+-- No vector index: with < 1,000 chunks an exact scan takes milliseconds and gives exact results.
+CREATE EXTENSION IF NOT EXISTS vector;
+ALTER TABLE chunks ADD COLUMN IF NOT EXISTS embedding vector(384);
+ALTER TABLE chunks ADD COLUMN IF NOT EXISTS embedding_model TEXT;

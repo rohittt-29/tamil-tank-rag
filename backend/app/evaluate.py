@@ -3,6 +3,7 @@
 Usage (from backend/):
     python -m app.evaluate                 # print a summary table
     python -m app.evaluate --save          # also write eval/results/<method>-<date>.json
+    python -m app.evaluate --method all --save   # every method, plus a comparison table
 
 Metrics (computed per query, then averaged over queries):
     Precision@5  share of the top 5 results that are relevant
@@ -12,6 +13,7 @@ A result is relevant when its (document, page) is listed for the query.
 """
 
 import argparse
+import hashlib
 import json
 import statistics
 import sys
@@ -19,6 +21,7 @@ import time
 from datetime import date
 
 from .config import REPO_ROOT
+from .embeddings import model_source
 from .main import search
 
 QUERIES = REPO_ROOT / "eval" / "queries.json"
@@ -45,9 +48,16 @@ def score(ranked: list[tuple[str, int]], relevant: set[tuple[str, int]]) -> dict
 
 
 METHODS = {
-    "keyword-all": {"match": "all"},  # every query word must appear (current UI default)
-    "keyword-any": {"match": "any"},  # any query word may appear; ranking does the rest
+    "keyword-all": {"mode": "keyword", "match": "all"},  # every query word must appear (UI default)
+    "keyword-any": {"mode": "keyword", "match": "any"},  # any query word may appear; ranking does the rest
+    "semantic": {"mode": "semantic"},                    # multilingual-e5-small embeddings, cosine similarity
+    "hybrid": {"mode": "hybrid"},                        # reciprocal rank fusion of keyword-any + semantic
 }
+
+
+def queries_fingerprint() -> str:
+    """sha256 of eval/queries.json: proves every method was scored on the same questions and labels."""
+    return hashlib.sha256(QUERIES.read_bytes()).hexdigest()
 
 
 def run(method: str) -> dict:
@@ -78,28 +88,58 @@ def run(method: str) -> dict:
             "zero_relevant_in_top10": sum(1 for r in rows if r["rr"] == 0),
         }
     summary["all"]["median_latency_ms"] = round(statistics.median(r["latency_ms"] for r in per_query), 1)
-    return {"method": method, "date": date.today().isoformat(), "summary": summary, "per_query": per_query}
+    return {
+        "method": method,
+        "date": date.today().isoformat(),
+        "queries_sha256": queries_fingerprint(),
+        "query_ids": [r["id"] for r in per_query],
+        "embedding_model": model_source() if METHODS[method]["mode"] != "keyword" else None,
+        "summary": summary,
+        "per_query": per_query,
+    }
+
+
+def print_per_query(result: dict) -> None:
+    print(f"{'id':4} {'type':10} {'P@5':>5} {'R@10':>5} {'RR':>5}  query")
+    for r in result["per_query"]:
+        print(f"{r['id']:4} {r['type']:10} {r['p_at_5']:5.2f} {r['recall_at_10']:5.2f} {r['rr']:5.2f}  {r['query']}")
+
+
+def print_comparison(results: list[dict]) -> None:
+    fingerprints = {(r["queries_sha256"], tuple(r["query_ids"])) for r in results}
+    assert len(fingerprints) == 1, "methods were scored on different query sets"
+    print(f"Same {len(results[0]['query_ids'])} questions and labels for every method "
+          f"(queries.json sha256 {results[0]['queries_sha256'][:12]}...)\n")
+    print(f"{'method':12} {'group':11} {'P@5':>6} {'R@10':>6} {'MRR':>6} {'zero':>5} {'median ms':>10}")
+    for res in results:
+        for group, s in res["summary"].items():
+            ms = s.get("median_latency_ms", "")
+            print(f"{res['method']:12} {group:11} {s['P@5']:6.3f} {s['Recall@10']:6.3f} {s['MRR']:6.3f} "
+                  f"{s['zero_relevant_in_top10']:5d} {ms:>10}")
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--save", action="store_true", help="write results JSON to eval/results/")
-    parser.add_argument("--method", choices=METHODS, default="keyword-all")
+    parser.add_argument("--method", choices=[*METHODS, "all"], default="keyword-all")
     args = parser.parse_args()
 
-    result = run(args.method)
-    print(f"{'id':4} {'type':10} {'P@5':>5} {'R@10':>5} {'RR':>5}  query")
-    for r in result["per_query"]:
-        print(f"{r['id']:4} {r['type']:10} {r['p_at_5']:5.2f} {r['recall_at_10']:5.2f} {r['rr']:5.2f}  {r['query']}")
-    print()
-    for group, s in result["summary"].items():
-        print(f"{group:10} {s}")
+    methods = list(METHODS) if args.method == "all" else [args.method]
+    results = [run(m) for m in methods]
+    if len(results) == 1:
+        print_per_query(results[0])
+        print()
+        for group, s in results[0]["summary"].items():
+            print(f"{group:10} {s}")
+    else:
+        print_comparison(results)
 
     if args.save:
         RESULTS_DIR.mkdir(parents=True, exist_ok=True)
-        out = RESULTS_DIR / f"{result['method']}-{result['date']}.json"
-        out.write_text(json.dumps(result, indent=2), encoding="utf-8")
-        print(f"\nsaved {out.relative_to(REPO_ROOT)}")
+        for result in results:
+            out = RESULTS_DIR / f"{result['method']}-{result['date']}.json"
+            out.write_text(json.dumps(result, indent=2), encoding="utf-8")
+            print(f"saved {out.relative_to(REPO_ROOT)}")
     return 0
 
 

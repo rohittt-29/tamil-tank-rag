@@ -1,0 +1,431 @@
+{
+  "method": "keyword-all",
+  "date": "2026-10-17",
+  "queries_sha256": "48210f6b83ccc2744579a33e0a6fa07bff837b62b3abef23e6c0bee37cb550f9",
+  "query_ids": [
+    "Q01",
+    "Q02",
+    "Q03",
+    "Q04",
+    "Q05",
+    "Q06",
+    "Q07",
+    "Q08",
+    "Q09",
+    "Q10",
+    "Q11",
+    "Q12",
+    "Q13",
+    "Q14",
+    "Q15",
+    "Q16",
+    "Q17",
+    "Q18",
+    "Q19",
+    "Q20",
+    "Q21",
+    "Q22",
+    "Q23",
+    "Q24",
+    "Q25",
+    "Q26",
+    "Q27",
+    "Q28"
+  ],
+  "embedding_model": null,
+  "summary": {
+    "all": {
+      "queries": 28,
+      "P@5": 0.193,
+      "Recall@10": 0.251,
+      "MRR": 0.445,
+      "zero_relevant_in_top10": 13,
+      "median_latency_ms": 40.0
+    },
+    "term": {
+      "queries": 11,
+      "P@5": 0.364,
+      "Recall@10": 0.484,
+      "MRR": 0.632,
+      "zero_relevant_in_top10": 2
+    },
+    "paraphrase": {
+      "queries": 17,
+      "P@5": 0.082,
+      "Recall@10": 0.1,
+      "MRR": 0.324,
+      "zero_relevant_in_top10": 11
+    }
+  },
+  "per_query": [
+    {
+      "id": "Q01",
+      "type": "term",
+      "query": "kudimaramath",
+      "results": [
+        "dhan-2004-customary-rights-tank-management:p18",
+        "dhan-2004-customary-rights-tank-management:p17",
+        "dhan-2004-customary-rights-tank-management:p20",
+        "dhan-2004-customary-rights-tank-management:p14",
+        "dhan-2004-customary-rights-tank-management:p14",
+        "dhan-2004-customary-rights-tank-management:p15",
+        "dhan-2004-customary-rights-tank-management:p17"
+      ],
+      "latency_ms": 220.0,
+      "p_at_5": 1.0,
+      "recall_at_10": 0.5714285714285714,
+      "rr": 1.0
+    },
+    {
+      "id": "Q02",
+      "type": "paraphrase",
+      "query": "How did farmers traditionally contribute voluntary labour to maintain tanks?",
+      "results": [
+        "frontiers-2025-mailam-tank-cascade:p2"
+      ],
+      "latency_ms": 46.3,
+      "p_at_5": 0.2,
+      "recall_at_10": 0.1111111111111111,
+      "rr": 1.0
+    },
+    {
+      "id": "Q03",
+      "type": "term",
+      "query": "neerkatti",
+      "results": [
+        "dhan-2004-customary-rights-tank-management:p15",
+        "dhan-2004-customary-rights-tank-management:p16"
+      ],
+      "latency_ms": 28.4,
+      "p_at_5": 0.4,
+      "recall_at_10": 1.0,
+      "rr": 1.0
+    },
+    {
+      "id": "Q04",
+      "type": "paraphrase",
+      "query": "Who was responsible for opening sluices and distributing tank water to the fields?",
+      "results": [
+        "dhan-2004-customary-rights-tank-management:p83"
+      ],
+      "latency_ms": 28.6,
+      "p_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "rr": 0.0
+    },
+    {
+      "id": "Q05",
+      "type": "paraphrase",
+      "query": "How were the traditional village water managers paid?",
+      "results": [
+        "dhan-2004-customary-rights-tank-management:p35"
+      ],
+      "latency_ms": 56.9,
+      "p_at_5": 0.2,
+      "recall_at_10": 0.16666666666666666,
+      "rr": 1.0
+    },
+    {
+      "id": "Q06",
+      "type": "term",
+      "query": "Mamulnama",
+      "results": [
+        "dhan-2004-customary-rights-tank-management:p16",
+        "frontiers-2025-mailam-tank-cascade:p16",
+        "dhan-2004-customary-rights-tank-management:p40"
+      ],
+      "latency_ms": 44.9,
+      "p_at_5": 0.4,
+      "recall_at_10": 0.6666666666666666,
+      "rr": 1.0
+    },
+    {
+      "id": "Q07",
+      "type": "paraphrase",
+      "query": "written records of customary irrigation rights for tanks in Vellore",
+      "results": [
+        "dhan-2004-customary-rights-tank-management:p16"
+      ],
+      "latency_ms": 24.6,
+      "p_at_5": 0.2,
+      "recall_at_10": 0.3333333333333333,
+      "rr": 1.0
+    },
+    {
+      "id": "Q08",
+      "type": "term",
+      "query": "tank cascade",
+      "results": [
+        "frontiers-2025-mailam-tank-cascade:p1",
+        "frontiers-2025-mailam-tank-cascade:p1",
+        "frontiers-2021-vandiyur-cascade-tanks:p1",
+        "frontiers-2021-vandiyur-cascade-tanks:p3",
+        "frontiers-2025-mailam-tank-cascade:p3",
+        "frontiers-2021-vandiyur-cascade-tanks:p13",
+        "frontiers-2021-vandiyur-cascade-tanks:p1",
+        "frontiers-2021-vandiyur-cascade-tanks:p16",
+        "frontiers-2021-vandiyur-cascade-tanks:p4",
+        "frontiers-2025-mailam-tank-cascade:p2"
+      ],
+      "latency_ms": 45.3,
+      "p_at_5": 0.8,
+      "recall_at_10": 0.5555555555555556,
+      "rr": 1.0
+    },
+    {
+      "id": "Q09",
+      "type": "paraphrase",
+      "query": "How are tanks in a chain connected so that surplus water flows to the next tank downstream?",
+      "results": [],
+      "latency_ms": 34.7,
+      "p_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "rr": 0.0
+    },
+    {
+      "id": "Q10",
+      "type": "paraphrase",
+      "query": "Why do farmers no longer depend on tank irrigation?",
+      "results": [],
+      "latency_ms": 29.3,
+      "p_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "rr": 0.0
+    },
+    {
+      "id": "Q11",
+      "type": "paraphrase",
+      "query": "How much storage capacity have the tanks lost because of silt?",
+      "results": [],
+      "latency_ms": 42.3,
+      "p_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "rr": 0.0
+    },
+    {
+      "id": "Q12",
+      "type": "term",
+      "query": "Prosopis juliflora in tanks",
+      "results": [
+        "dhan-2004-customary-rights-tank-management:p45"
+      ],
+      "latency_ms": 36.9,
+      "p_at_5": 0.2,
+      "recall_at_10": 0.2,
+      "rr": 1.0
+    },
+    {
+      "id": "Q13",
+      "type": "paraphrase",
+      "query": "Which government departments manage tanks with ayacut above and below 40 hectares?",
+      "results": [],
+      "latency_ms": 22.2,
+      "p_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "rr": 0.0
+    },
+    {
+      "id": "Q14",
+      "type": "term",
+      "query": "Water Users Association effectiveness",
+      "results": [],
+      "latency_ms": 38.4,
+      "p_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "rr": 0.0
+    },
+    {
+      "id": "Q15",
+      "type": "term",
+      "query": "Land Encroachment Act 1905",
+      "results": [
+        "dhan-2004-customary-rights-tank-management:p18",
+        "dhan-2004-customary-rights-tank-management:p42",
+        "frontiers-2025-mailam-tank-cascade:p19",
+        "dhan-2004-customary-rights-tank-management:p25"
+      ],
+      "latency_ms": 55.1,
+      "p_at_5": 0.4,
+      "recall_at_10": 0.6666666666666666,
+      "rr": 1.0
+    },
+    {
+      "id": "Q16",
+      "type": "paraphrase",
+      "query": "How did British land tenure changes weaken community tank maintenance?",
+      "results": [
+        "dhan-2004-customary-rights-tank-management:p14",
+        "dhan-2004-customary-rights-tank-management:p18"
+      ],
+      "latency_ms": 40.7,
+      "p_at_5": 0.4,
+      "recall_at_10": 0.5,
+      "rr": 1.0
+    },
+    {
+      "id": "Q17",
+      "type": "term",
+      "query": "fishing rights in village tanks",
+      "results": [
+        "dhan-2004-customary-rights-tank-management:p61",
+        "dhan-2004-customary-rights-tank-management:p35",
+        "dhan-2004-customary-rights-tank-management:p84",
+        "dhan-2004-customary-rights-tank-management:p29",
+        "dhan-2004-customary-rights-tank-management:p29",
+        "dhan-2004-customary-rights-tank-management:p116",
+        "dhan-2004-customary-rights-tank-management:p26",
+        "dhan-2004-customary-rights-tank-management:p64",
+        "dhan-2004-customary-rights-tank-management:p66",
+        "dhan-2004-customary-rights-tank-management:p31"
+      ],
+      "latency_ms": 45.3,
+      "p_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "rr": 0.0
+    },
+    {
+      "id": "Q18",
+      "type": "paraphrase",
+      "query": "Can farmers take silt from the tank bed to put on their fields?",
+      "results": [],
+      "latency_ms": 31.9,
+      "p_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "rr": 0.0
+    },
+    {
+      "id": "Q19",
+      "type": "term",
+      "query": "groundwater level decline",
+      "results": [
+        "frontiers-2021-vandiyur-cascade-tanks:p8",
+        "frontiers-2025-mailam-tank-cascade:p18",
+        "frontiers-2021-suresh-intersectoral-water:p8",
+        "frontiers-2021-vandiyur-cascade-tanks:p10",
+        "frontiers-2025-mailam-tank-cascade:p18",
+        "frontiers-2025-mailam-tank-cascade:p7"
+      ],
+      "latency_ms": 32.0,
+      "p_at_5": 0.2,
+      "recall_at_10": 0.3333333333333333,
+      "rr": 0.25
+    },
+    {
+      "id": "Q20",
+      "type": "term",
+      "query": "unmet water demand Madurai",
+      "results": [
+        "frontiers-2021-vandiyur-cascade-tanks:p11",
+        "frontiers-2021-vandiyur-cascade-tanks:p1",
+        "frontiers-2021-vandiyur-cascade-tanks:p14",
+        "frontiers-2021-vandiyur-cascade-tanks:p10",
+        "frontiers-2021-vandiyur-cascade-tanks:p14",
+        "frontiers-2021-vandiyur-cascade-tanks:p7",
+        "frontiers-2021-vandiyur-cascade-tanks:p10",
+        "frontiers-2021-vandiyur-cascade-tanks:p8"
+      ],
+      "latency_ms": 43.1,
+      "p_at_5": 0.4,
+      "recall_at_10": 1.0,
+      "rr": 0.5
+    },
+    {
+      "id": "Q21",
+      "type": "paraphrase",
+      "query": "What would be gained by restoring the cascade tanks?",
+      "results": [],
+      "latency_ms": 45.1,
+      "p_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "rr": 0.0
+    },
+    {
+      "id": "Q22",
+      "type": "paraphrase",
+      "query": "What local names are used for tanks in Tamil Nadu?",
+      "results": [],
+      "latency_ms": 34.5,
+      "p_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "rr": 0.0
+    },
+    {
+      "id": "Q23",
+      "type": "paraphrase",
+      "query": "How many tanks are there in Tamil Nadu?",
+      "results": [
+        "dhan-2004-customary-rights-tank-management:p15"
+      ],
+      "latency_ms": 32.6,
+      "p_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "rr": 0.0
+    },
+    {
+      "id": "Q24",
+      "type": "paraphrase",
+      "query": "religious rituals and worship connected with tanks",
+      "results": [],
+      "latency_ms": 23.9,
+      "p_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "rr": 0.0
+    },
+    {
+      "id": "Q25",
+      "type": "paraphrase",
+      "query": "share of tank water in Tamil Nadu irrigation compared with groundwater",
+      "results": [],
+      "latency_ms": 39.3,
+      "p_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "rr": 0.0
+    },
+    {
+      "id": "Q26",
+      "type": "term",
+      "query": "encroachment of tank water spread area",
+      "results": [
+        "dhan-2004-customary-rights-tank-management:p84",
+        "dhan-2004-customary-rights-tank-management:p105",
+        "dhan-2004-customary-rights-tank-management:p30",
+        "frontiers-2025-mailam-tank-cascade:p20",
+        "frontiers-2021-vandiyur-cascade-tanks:p8",
+        "frontiers-2025-mailam-tank-cascade:p10",
+        "frontiers-2025-mailam-tank-cascade:p8",
+        "frontiers-2025-mailam-tank-cascade:p8",
+        "dhan-2004-customary-rights-tank-management:p104",
+        "dhan-2004-customary-rights-tank-management:p102"
+      ],
+      "latency_ms": 60.2,
+      "p_at_5": 0.2,
+      "recall_at_10": 0.3333333333333333,
+      "rr": 0.2
+    },
+    {
+      "id": "Q27",
+      "type": "paraphrase",
+      "query": "drinking water ponds filled from the irrigation tank",
+      "results": [
+        "dhan-2004-customary-rights-tank-management:p27",
+        "dhan-2004-customary-rights-tank-management:p48"
+      ],
+      "latency_ms": 45.1,
+      "p_at_5": 0.2,
+      "recall_at_10": 0.3333333333333333,
+      "rr": 0.5
+    },
+    {
+      "id": "Q28",
+      "type": "paraphrase",
+      "query": "How did Sathangudi village try to get water into its tank?",
+      "results": [
+        "dhan-2004-customary-rights-tank-management:p93"
+      ],
+      "latency_ms": 43.7,
+      "p_at_5": 0.2,
+      "recall_at_10": 0.25,
+      "rr": 1.0
+    }
+  ]
+}

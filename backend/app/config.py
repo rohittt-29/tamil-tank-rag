@@ -13,6 +13,7 @@ class Settings(BaseSettings):
     database_url: str = "postgresql://tank:tank@localhost:5432/tankdb"
     chunk_words: int = 180     # target words per chunk
     chunk_overlap: int = 30    # words repeated between neighbouring chunks
+    embedding_model_dir: str = ""  # empty = <repo>/models/multilingual-e5-small
 
 
 settings = Settings()

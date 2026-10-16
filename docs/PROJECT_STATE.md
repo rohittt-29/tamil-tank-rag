@@ -1,9 +1,22 @@
 # Project State
 
-_Last updated: 2026-10-15_
+_Last updated: 2026-10-17_
 
 ## Current phase
-Milestone 1: end-to-end keyword search over real documents with source references.
+Milestone 2 (v2) done: semantic and hybrid search next to the keyword baseline, compared on the 28-question set.
+
+## Milestone 2 — semantic + hybrid search (2026-10-16/17)
+- `python -m app.embed`: downloads intfloat/multilingual-e5-small once into `models/` (gitignored, ~490 MB),
+  embeds only chunks without a vector. 677/677 chunks embedded on the laptop.
+- `/api/search?mode=keyword|semantic|hybrid` (keyword stays the default; `match` still applies to keyword).
+  Hybrid = Reciprocal Rank Fusion. All modes return document metadata + page number.
+- Errors: blank query → 422; model not downloaded or no embeddings → 503 with the command to run;
+  database down → 503; partially embedded collection → results plus a `warning`.
+- UI: Keyword / Semantic / Hybrid selector; warning shown above results.
+- Results (Run 2 in EXPERIMENTS.md, draft judgments): hybrid P@5 0.400 / Recall@10 0.564 / MRR 0.714;
+  semantic 0.371 / 0.553 / 0.720; keyword-all 0.193 / 0.251 / 0.445. Semantic is weaker than keyword on rare
+  transliterated terms (kudimaramath, neerkatti); hybrid recovers most of that.
+- Tests: 24 (1 needs the downloaded model, skipped in the cloud dev container, which cannot reach Hugging Face).
 
 ## Done
 - Postgres schema: `documents` (metadata, licence, sha256, status, error) and `chunks` (page-level text + full-text index).
@@ -35,7 +48,7 @@ Screenshot: `docs/milestone1-search.png`.
 - Existing databases must be rebuilt once: `python -m app.ingest --force`.
 
 ## Collection (2026-10-15)
-4 documents, 198 pages, 670 chunks (ingest of all four: ~2 s). See DATA_SOURCES.md.
+4 documents, 198 pages, 677 chunks (ingest of all four: ~2 s). See DATA_SOURCES.md.
 
 ## Observation worth an experiment (not yet a result)
 Transliterated Tamil terms are spelled differently across sources. The DHAN report writes "Kudimaramath" 12 times and
@@ -50,11 +63,13 @@ EXPERIMENTS.md (judgments still need Kalpesh's review). Added `match=any` search
 - Concept queries ("water storage structure") rank poorly — expected for keyword search; motivates semantic search.
 
 ## Next task
-1. Push the code to GitHub (https://github.com/rohittt-29/tamil-tank-rag). Keep collecting sources (target 10+).
-2. Kalpesh reviews the draft query set (`eval/queries.json`); baseline is in `docs/EXPERIMENTS.md`.
-3. Milestone 2: embeddings + pgvector semantic search, compared to keyword search on that query set.
+1. Kalpesh reviews the draft query set (`eval/queries.json`), then re-run `python -m app.evaluate --method all --save`.
+2. Push the code to GitHub. Keep collecting sources (target 10+).
+3. v3: spelling/transliteration normalisation (kudimaramath variants), measured on the same set; consider
+   weighted fusion for queries like Q12 where hybrid underperforms semantic.
 
 ## Known limitations
 - No OCR: scanned PDFs fail with "no extractable text".
 - Full-text config is `english`; Tamil text is indexed but not stemmed/normalised properly yet.
+- Semantic search is weaker than keyword search on rare transliterated terms; hybrid partly compensates.
 - Chunking is by word windows (180 words, 30 overlap), not by section/sentence.

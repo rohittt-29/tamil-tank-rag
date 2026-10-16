@@ -21,13 +21,16 @@ export interface SearchHit {
   page_number: number
   section: 'body' | 'references'
   snippet: string
-  score: number
+  score: number // keyword: ts_rank_cd · semantic: cosine similarity · hybrid: RRF score
   document: DocumentMeta
 }
+
+export type SearchMode = 'keyword' | 'semantic' | 'hybrid'
 
 export interface SearchResponse {
   query: string
   method: string
   total: number
   hits: SearchHit[]
+  warning: string | null
 }

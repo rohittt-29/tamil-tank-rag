@@ -1,7 +1,13 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { listDocuments, searchChunks } from './api'
 import { Snippet } from './Snippet'
-import type { DocumentMeta, SearchResponse } from './types'
+import type { DocumentMeta, SearchMode, SearchResponse } from './types'
+
+const MODES: { value: SearchMode; label: string; hint: string }[] = [
+  { value: 'keyword', label: 'Keyword', hint: 'exact words (all must appear)' },
+  { value: 'semantic', label: 'Semantic', hint: 'similar meaning, even with different words' },
+  { value: 'hybrid', label: 'Hybrid', hint: 'keyword and semantic results combined' },
+]
 
 function citation(d: DocumentMeta) {
   const authors = d.authors.length > 2 ? `${d.authors[0]} et al.` : d.authors.join(' & ')
@@ -16,6 +22,7 @@ function sourceLink(d: DocumentMeta, page?: number) {
 
 export default function App() {
   const [query, setQuery] = useState('')
+  const [mode, setMode] = useState<SearchMode>('keyword')
   const [result, setResult] = useState<SearchResponse | null>(null)
   const [docs, setDocs] = useState<DocumentMeta[]>([])
   const [error, setError] = useState<string | null>(null)
@@ -31,7 +38,7 @@ export default function App() {
     setLoading(true)
     setError(null)
     try {
-      setResult(await searchChunks(query.trim()))
+      setResult(await searchChunks(query.trim(), mode))
     } catch (err) {
       setError(`Search failed: ${(err as Error).message}`)
     } finally {
@@ -59,6 +66,22 @@ export default function App() {
         <button disabled={loading}>{loading ? 'Searching…' : 'Search'}</button>
       </form>
 
+      <fieldset className="modes">
+        <legend className="muted">Search mode</legend>
+        {MODES.map((m) => (
+          <label key={m.value} title={m.hint}>
+            <input
+              type="radio"
+              name="mode"
+              value={m.value}
+              checked={mode === m.value}
+              onChange={() => setMode(m.value)}
+            />{' '}
+            {m.label} <span className="muted">({m.hint})</span>
+          </label>
+        ))}
+      </fieldset>
+
       {error && <p className="error">{error}</p>}
 
       {result && (
@@ -67,6 +90,7 @@ export default function App() {
             {result.total} matching passage{result.total === 1 ? '' : 's'} for “{result.query}” ({result.method}{' '}
             search)
           </p>
+          {result.warning && <p className="warning">{result.warning}</p>}
           <ol className="hits">
             {result.hits.map((h) => {
               const link = sourceLink(h.document, h.page_number)

@@ -8,3 +8,5 @@ __pycache__/
 # where each one came from plus its sha256, so anyone can re-download it.
 data/raw/*
 !data/raw/.gitkeep
+# Downloaded embedding model (re-created by: python -m app.embed)
+models/
