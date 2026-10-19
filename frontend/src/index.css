@@ -134,16 +134,14 @@ a:focus-visible {
   position: sticky;
   top: 0;
   z-index: 100;
-  background: color-mix(in srgb, var(--bg-surface) 90%, transparent);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: var(--bg-surface);
   border-bottom: 1px solid var(--border-subtle);
+  box-shadow: 0 1px 0 0 var(--border-subtle);
 }
 
 .top-nav__inner {
-  max-width: 960px;
-  margin: 0 auto;
-  padding: 0 var(--s-6);
+  width: 100%;
+  padding: 0 var(--s-12);
   height: 56px;
   display: flex;
   align-items: center;
@@ -795,7 +793,7 @@ mark::after {
 
 /* ── Responsive ─────────────────────────────────────────────────────── */
 @media (max-width: 640px) {
-  .top-nav__inner { padding: 0 var(--s-4); }
+  .top-nav__inner { padding: 0 var(--s-5); }
   .nav-brand__sub { display: none; }
   .nav-brand__sep { display: none; }
 

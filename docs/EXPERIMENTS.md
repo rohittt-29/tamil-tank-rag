@@ -95,3 +95,52 @@ Caveats: 28 queries is small, the judgments are still a draft by Claude, and no 
 so differences of a few hundredths (e.g. semantic 0.720 vs hybrid 0.714 MRR) should not be read as real.
 
 Run 2 result files: `eval/results/{keyword-all,keyword-any,semantic,hybrid}-2026-10-17.json`.
+
+## Run 2 re-scored: each page counted once (2026-10-18)
+
+Search can return two separate (non-neighbouring) chunks from the same page, and the labels are per page,
+so Run 2 counted some relevant pages twice in P@5. `evaluate.py` now removes repeats of a page before scoring
+(each page keeps its first rank and the next distinct page moves up). The saved Run 2 result lists were scored
+again with this rule, without re-running any search:
+
+    python -m app.evaluate --rescore eval/results/{keyword-all,keyword-any,semantic,hybrid}-2026-10-17.json --save
+
+| Method | P@5 as reported | P@5 page-once | Recall@10 | MRR as reported | MRR page-once | Zero in top 10 |
+|---|---|---|---|---|---|---|
+| keyword-all | 0.193 | **0.179** | 0.251 | 0.445 | 0.445 | 13 |
+| keyword-any | 0.250 | 0.250 | 0.474 | 0.537 | 0.537 | 3 |
+| semantic | 0.371 | **0.357** | 0.553 | 0.720 | 0.720 | 3 |
+| hybrid | 0.400 | **0.379** | 0.564 | 0.714 | **0.716** | 1 |
+
+This is the **V2 baseline** used from now on. Order of the methods is unchanged.
+Files: `eval/results/*-2026-10-17-rescored.json`.
+
+## Run 3a: query normalisation + spelling variants (V3a, 2026-10-18)
+
+Change: `app/normalize.py` cleans the query (NFC, zero-width and control characters, curly quotes, spaces) and,
+for keyword search and the keyword half of hybrid, adds the other spellings of three verified groups:
+Kudimaramath/-mathu/-matu/-mat, ayacutdar/-dhar/-dara, Tamil Nadu/Tamilnadu (evidence in `docs/V3_INSPECTION.md`).
+No re-ingest, no change to chunks or embeddings. Same `eval/queries.json` (sha256 48210f6b83cc…), page-once scoring.
+
+Measured in the cloud dev container, against the same 677 chunks as the laptop. Check: on the 26 questions that
+trigger no variant, the cloud returned exactly the same top-10 lists as the laptop's Run 2, for both keyword modes.
+
+| Method | P@5 V2 → V3a | Recall@10 V2 → V3a | MRR V2 → V3a | Zero in top 10 |
+|---|---|---|---|---|
+| keyword-all | 0.179 → **0.186** | 0.251 → **0.266** | 0.445 → 0.445 | 13 → 13 |
+| keyword-any | 0.250 → 0.250 | 0.474 → **0.489** | 0.537 → 0.537 | 3 → 3 |
+| semantic | needs the laptop (model) | | | |
+| hybrid | needs the laptop (model) | | | |
+
+Only two questions trigger a variant, so only two change:
+- Q01 "kudimaramath": P@5 0.8 → 1.0, Recall@10 0.57 → **1.00** in both keyword modes. The pages written
+  "Kudimaramathu"/"Kudimaramatu" (M2, M18, D91) are now found. This is the intended effect.
+- Q23 "How many tanks are there in Tamil Nadu?" (keyword-any): P@5 0.4 → **0.2**, Recall@10 and RR unchanged.
+  Adding "Tamilnadu" brings in DHAN p3, p6, p7 (contents list and study objectives). They really are about tanks in
+  Tamilnadu but do not give a count, and they push the relevant p44 from rank 5 to rank 8. A real side effect, not a bug.
+
+Honest reading: the gain is concentrated in one question (Q01). With 28 questions, an average gain of
++0.015 Recall@10 is not evidence of a general improvement; it shows the variant fix works for the case it targets
+and costs a little on one other. Latency is not compared: the cloud container is a different machine.
+
+Files: `eval/results/keyword-{all,any}-2026-10-18.json`.

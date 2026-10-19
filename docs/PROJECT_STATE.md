@@ -1,9 +1,21 @@
 # Project State
 
-_Last updated: 2026-10-17_
+_Last updated: 2026-10-18_
 
 ## Current phase
-Milestone 2 (v2) done: semantic and hybrid search next to the keyword baseline, compared on the 28-question set.
+V3 Stage 1 done (query normalisation, spelling variants, page-once scoring). Waiting: semantic/hybrid V3a numbers
+from the laptop. Stage 2 (footer fix + re-ingest) not started; it needs Kalpesh's OK after the backup plan.
+
+## V3 Stage 1 — query normalisation (2026-10-18)
+- `app/normalize.py`: cleans the query; adds verified spellings (Kudimaramath group, ayacutdar group,
+  Tamil Nadu/Tamilnadu) to keyword search. Response now has `query` (as typed), `normalized_query`, `variants_used`.
+  UI shows "Also searched: …". Punctuation-only query → 422.
+- `evaluate.py`: each page counts once; `--rescore` re-scores saved runs. V2 baseline re-scored
+  (hybrid P@5 0.400 → 0.379).
+- V3a keyword results (EXPERIMENTS Run 3a): Q01 Recall@10 0.57 → 1.00; Q23 keyword-any P@5 0.4 → 0.2;
+  everything else identical. No general improvement claimed.
+- Tests: 56 (55 pass, 1 needs the model).
+- Open for Kalpesh: Q17 may be missing DHAN p32 in its labels; Q14 labels worth a second look. Labels unchanged.
 
 ## Milestone 2 — semantic + hybrid search (2026-10-16/17)
 - `python -m app.embed`: downloads intfloat/multilingual-e5-small once into `models/` (gitignored, ~490 MB),

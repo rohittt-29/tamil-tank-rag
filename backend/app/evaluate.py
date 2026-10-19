@@ -10,6 +10,12 @@ Metrics (computed per query, then averaged over queries):
     Recall@10    share of the relevant pages that appear somewhere in the top 10
     MRR          1 / rank of the first relevant result (0 if none in the top 10)
 A result is relevant when its (document, page) is listed for the query.
+Each page counts once, at its first rank: search can return two separate chunks
+of the same page, and the labels are per page, so repeats are removed before scoring
+and the next distinct page moves up.
+
+Re-score saved results with the current rule (no database or model needed):
+    python -m app.evaluate --rescore eval/results/hybrid-2026-10-17.json
 """
 
 import argparse
@@ -22,11 +28,11 @@ from datetime import date
 
 from .config import REPO_ROOT
 from .embeddings import model_source
-from .main import search
 
 QUERIES = REPO_ROOT / "eval" / "queries.json"
 RESULTS_DIR = REPO_ROOT / "eval" / "results"
 K_PRECISION, K_RECALL = 5, 10
+SCORING = "page-once"  # saved runs without this key counted a repeated page twice in P@5
 
 
 def load_queries() -> list[dict]:
@@ -38,6 +44,7 @@ def load_queries() -> list[dict]:
 
 
 def score(ranked: list[tuple[str, int]], relevant: set[tuple[str, int]]) -> dict:
+    ranked = list(dict.fromkeys(ranked))  # drop repeats of a page, keeping its first (best) rank
     is_rel = [r in relevant for r in ranked]
     first = next((i + 1 for i, hit in enumerate(is_rel[:K_RECALL]) if hit), None)
     return {
@@ -61,6 +68,8 @@ def queries_fingerprint() -> str:
 
 
 def run(method: str) -> dict:
+    from .main import search  # imported here so --rescore works without the API's dependencies
+
     per_query = []
     for q in load_queries():
         start = time.perf_counter()
@@ -73,7 +82,19 @@ def run(method: str) -> dict:
             "latency_ms": round(latency_ms, 1),
             **score(ranked, q["relevant_pages"]),
         })
+    return {
+        "method": method,
+        "date": date.today().isoformat(),
+        "scoring": SCORING,
+        "queries_sha256": queries_fingerprint(),
+        "query_ids": [r["id"] for r in per_query],
+        "embedding_model": model_source() if METHODS[method]["mode"] != "keyword" else None,
+        "summary": summarise(per_query),
+        "per_query": per_query,
+    }
 
+
+def summarise(per_query: list[dict]) -> dict:
     def mean(rows: list[dict], key: str) -> float:
         return round(statistics.mean(r[key] for r in rows), 3) if rows else 0.0
 
@@ -88,15 +109,24 @@ def run(method: str) -> dict:
             "zero_relevant_in_top10": sum(1 for r in rows if r["rr"] == 0),
         }
     summary["all"]["median_latency_ms"] = round(statistics.median(r["latency_ms"] for r in per_query), 1)
-    return {
-        "method": method,
-        "date": date.today().isoformat(),
-        "queries_sha256": queries_fingerprint(),
-        "query_ids": [r["id"] for r in per_query],
-        "embedding_model": model_source() if METHODS[method]["mode"] != "keyword" else None,
-        "summary": summary,
-        "per_query": per_query,
-    }
+    return summary
+
+
+def rescore(saved: dict) -> dict:
+    """Score a saved run again from its stored result lists, with today's labels and scoring rule.
+
+    The ranked pages are not re-searched, so this measures the same retrieval output fairly.
+    Refuses if queries.json changed since the run, because the labels would differ.
+    """
+    if saved["queries_sha256"] != queries_fingerprint():
+        raise SystemExit(f"{saved['method']}: saved with a different queries.json; cannot re-score fairly")
+    relevant = {q["id"]: q["relevant_pages"] for q in load_queries()}
+    per_query = []
+    for r in saved["per_query"]:
+        ranked = [(k, int(p)) for k, p in (x.rsplit(":p", 1) for x in r["results"])]
+        per_query.append({**r, **score(ranked, relevant[r["id"]])})
+    return {**saved, "scoring": SCORING, "rescored_on": date.today().isoformat(),
+            "summary": summarise(per_query), "per_query": per_query}
 
 
 def print_per_query(result: dict) -> None:
@@ -122,10 +152,14 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--save", action="store_true", help="write results JSON to eval/results/")
     parser.add_argument("--method", choices=[*METHODS, "all"], default="keyword-all")
+    parser.add_argument("--rescore", nargs="+", metavar="FILE", help="re-score saved result files instead of searching")
     args = parser.parse_args()
 
-    methods = list(METHODS) if args.method == "all" else [args.method]
-    results = [run(m) for m in methods]
+    if args.rescore:
+        results = [rescore(json.loads(open(f, encoding="utf-8").read())) for f in args.rescore]
+    else:
+        methods = list(METHODS) if args.method == "all" else [args.method]
+        results = [run(m) for m in methods]
     if len(results) == 1:
         print_per_query(results[0])
         print()
@@ -137,7 +171,8 @@ def main() -> int:
     if args.save:
         RESULTS_DIR.mkdir(parents=True, exist_ok=True)
         for result in results:
-            out = RESULTS_DIR / f"{result['method']}-{result['date']}.json"
+            suffix = "-rescored" if args.rescore else ""
+            out = RESULTS_DIR / f"{result['method']}-{result['date']}{suffix}.json"
             out.write_text(json.dumps(result, indent=2), encoding="utf-8")
             print(f"saved {out.relative_to(REPO_ROOT)}")
     return 0

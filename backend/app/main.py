@@ -8,6 +8,7 @@ from pydantic import BaseModel
 from .db import connect
 from .embed import to_pgvector
 from .embeddings import ModelMissingError, get_embedder
+from .normalize import NormalizedQuery, normalize_query
 
 app = FastAPI(title="Tamil Tank Irrigation Knowledge API", version="0.2.0")
 
@@ -41,7 +42,9 @@ class SearchHit(BaseModel):
 
 
 class SearchResponse(BaseModel):
-    query: str
+    query: str                      # exactly as the user typed it
+    normalized_query: str           # cleaned text actually searched
+    variants_used: list[str] = []   # other spellings added to keyword search
     method: str
     total: int
     hits: list[SearchHit]
@@ -57,15 +60,35 @@ HEADLINE = f"ts_headline('english', c.text, query.tsq, 'StartSel={HL_START}, Sto
 
 # Turns the user's text into a tsquery. "all": every word must match (websearch syntax).
 # "any": word1 | word2 | ..., so long questions still match and ranking rewards more matched words.
+# Then {variants} adds known spellings of a typed term (see normalize.py).
 QUERY_CTE = """
     WITH parsed AS (SELECT websearch_to_tsquery('english', %(q)s) AS tsq),
-    query AS (
+    base AS (
         SELECT CASE WHEN %(any)s AND tsq::text <> ''
                     THEN replace(plainto_tsquery('english', %(q)s)::text, '&', '|')::tsquery
                     ELSE tsq END AS tsq
         FROM parsed
-    )
+    ),
+    query AS (SELECT {variants} AS tsq FROM base)
 """
+
+
+def variant_sql(nq: NormalizedQuery, any_words: bool) -> tuple[str, dict]:
+    """SQL expression that adds the other spellings to base.tsq.
+
+    all-words mode: ts_rewrite swaps the typed word for (spelling1 | spelling2 | ...), so the
+    rest of the query is untouched: kudimaramath & tank -> (kudimaramath | kudimaramathu | ...) & tank.
+    any-word mode: the query is already word1 | word2 | ..., so the spellings are simply OR-ed on.
+    """
+    expr, params = "base.tsq", {}
+    for i, (typed, lexemes) in enumerate(nq.rewrites):
+        params[f"vt{i}"], params[f"vs{i}"] = typed, lexemes
+        if any_words:
+            expr = f"({expr} || to_tsquery('simple', %(vs{i})s))"
+        else:
+            expr = f"ts_rewrite({expr}, plainto_tsquery('english', %(vt{i})s), to_tsquery('simple', %(vs{i})s))"
+    return expr, params
+
 
 # Upper bound on matching chunks considered per query before de-duplication.
 # Fine for a corpus of tens of documents; revisit when the collection grows.
@@ -124,15 +147,16 @@ def reciprocal_rank_fusion(*rankings: list[int], k: int = RRF_K) -> list[tuple[i
     return sorted(scores.items(), key=lambda kv: (-kv[1], kv[0]))
 
 
-def keyword_rows(conn: psycopg.Connection, q: str, refs: bool, any_words: bool, limit: int) -> list[dict]:
-    sql = f"""{QUERY_CTE}
+def keyword_rows(conn: psycopg.Connection, nq: NormalizedQuery, refs: bool, any_words: bool, limit: int) -> list[dict]:
+    variants, vparams = variant_sql(nq, any_words)
+    sql = f"""{QUERY_CTE.format(variants=variants)}
         SELECT {CHUNK_COLUMNS}, ts_rank_cd(c.tsv, query.tsq) AS score, {HEADLINE}, {DOC_COLUMNS}
         FROM chunks c JOIN documents d ON d.id = c.document_id, query
         WHERE c.tsv @@ query.tsq AND (%(refs)s OR c.section = 'body')
         ORDER BY score DESC, c.id
         LIMIT %(max)s
     """
-    return conn.execute(sql, {"q": q, "refs": refs, "any": any_words, "max": limit}).fetchall()
+    return conn.execute(sql, {"q": nq.text, "refs": refs, "any": any_words, "max": limit, **vparams}).fetchall()
 
 
 def embedding_coverage(conn: psycopg.Connection, model: str) -> tuple[int, int]:
@@ -143,16 +167,18 @@ def embedding_coverage(conn: psycopg.Connection, model: str) -> tuple[int, int]:
     return row["e"], row["n"]
 
 
-def semantic_rows(conn: psycopg.Connection, q: str, refs: bool, limit: int, model: str, vector: str) -> list[dict]:
-    # The snippet still highlights any query words that happen to appear in the passage.
-    sql = f"""{QUERY_CTE}
+def semantic_rows(conn: psycopg.Connection, nq: NormalizedQuery, refs: bool, limit: int, model: str, vector: str) -> list[dict]:
+    # Ranking uses only the vector; the query words (and their spellings) are used just to highlight the snippet.
+    variants, vparams = variant_sql(nq, any_words=True)
+    sql = f"""{QUERY_CTE.format(variants=variants)}
         SELECT {CHUNK_COLUMNS}, 1 - (c.embedding <=> %(v)s::vector) AS score, {HEADLINE}, {DOC_COLUMNS}
         FROM chunks c JOIN documents d ON d.id = c.document_id, query
         WHERE c.embedding IS NOT NULL AND c.embedding_model = %(model)s AND (%(refs)s OR c.section = 'body')
         ORDER BY c.embedding <=> %(v)s::vector, c.id
         LIMIT %(max)s
     """
-    return conn.execute(sql, {"q": q, "refs": refs, "any": True, "v": vector, "model": model, "max": limit}).fetchall()
+    params = {"q": nq.text, "refs": refs, "any": True, "v": vector, "model": model, "max": limit, **vparams}
+    return conn.execute(sql, params).fetchall()
 
 
 def to_hit(r: dict) -> dict:
@@ -181,13 +207,13 @@ def search(
     semantic: cosine similarity between multilingual-e5-small embeddings (pgvector).
     hybrid:   Reciprocal Rank Fusion of keyword ("any" words) and semantic top-50 lists.
     """
-    q = q.strip()
-    if not q:
-        raise HTTPException(status_code=422, detail="Query is empty.")
+    nq = normalize_query(q)
+    if not nq.searchable:
+        raise HTTPException(status_code=422, detail="Query has no letters or numbers to search for.")
     warning = None
     with connect() as conn:
         if mode == "keyword":
-            rows = keyword_rows(conn, q, include_references, match == "any", MAX_CANDIDATES)
+            rows = keyword_rows(conn, nq, include_references, match == "any", MAX_CANDIDATES)
             method = f"keyword-{match}"
         else:
             try:
@@ -199,16 +225,16 @@ def search(
                 raise HTTPException(status_code=503, detail="No chunk embeddings yet. Run: python -m app.embed")
             if have < total:
                 warning = f"{total - have} of {total} passages have no embedding yet and are missing from semantic results. Run: python -m app.embed"
-            vector = to_pgvector(embedder.embed_queries([q])[0])
+            vector = to_pgvector(embedder.embed_queries([nq.text])[0])
             if mode == "semantic":
-                rows = semantic_rows(conn, q, include_references, MAX_CANDIDATES, embedder.name, vector)
+                rows = semantic_rows(conn, nq, include_references, MAX_CANDIDATES, embedder.name, vector)
                 method = "semantic"
             else:
-                kw = keyword_rows(conn, q, include_references, True, RRF_DEPTH)
-                sem = semantic_rows(conn, q, include_references, RRF_DEPTH, embedder.name, vector)
+                kw = keyword_rows(conn, nq, include_references, True, RRF_DEPTH)
+                sem = semantic_rows(conn, nq, include_references, RRF_DEPTH, embedder.name, vector)
                 by_id = {r["chunk_id"]: r for r in sem} | {r["chunk_id"]: r for r in kw}  # keyword snippet preferred
                 fused = reciprocal_rank_fusion([r["chunk_id"] for r in kw], [r["chunk_id"] for r in sem])
                 rows = [{**by_id[cid], "score": score} for cid, score in fused]
                 method = "hybrid-rrf"
     rows = drop_overlapping_neighbours(rows)
-    return {"query": q, "method": method, "total": len(rows), "hits": [to_hit(r) for r in rows[:limit]], "warning": warning}
+    return {"query": nq.original, "normalized_query": nq.text, "variants_used": nq.variants_used, "method": method, "total": len(rows), "hits": [to_hit(r) for r in rows[:limit]], "warning": warning}
